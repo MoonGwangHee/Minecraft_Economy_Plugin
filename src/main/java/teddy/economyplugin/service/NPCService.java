@@ -17,7 +17,6 @@ import teddy.economyplugin.repository.ShopNPCRepository;
 public class NPCService {
 
     private final ShopNPCRepository shopNPCRepository;
-    private final CitizensAPI citizensAPI;  // Citizens 플러그인 API
 
     @Transactional
     public void createNPC(String npcName, World world, Location location, String npcTag) {
@@ -32,7 +31,7 @@ public class NPCService {
             // 먼저 NPCRegistry를 가져온 후
             if (registry != null) {
                 // 여기서 NPC를 생성합니다
-                NPC npc = registry.createNPC(, npcName, location);
+                NPC npc = registry.createNPC(EntityType.PLAYER, npcName, location);
 
                 if (npc != null) {
                     // DB에 NPC 정보 저장
