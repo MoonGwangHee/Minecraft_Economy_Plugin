@@ -1,0 +1,106 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.6'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'Teddy'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'citizensnpcs-repo'
+        url = 'https://repo.citizensnpcs.co/'
+    }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+    maven {
+        name = 'papermc'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+    maven {
+        name = 'bukkit-repo'
+        url = 'https://repo.bukkit.org/content/groups/public/'
+    }
+}
+
+dependencies {
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Bukkit & Citizens
+    compileOnly 'org.spigotmc:spigot-api:1.21.3-R0.1-SNAPSHOT'
+    compileOnly 'net.citizensnpcs:citizensapi:2.0.32-SNAPSHOT'  // 버전 수정
+
+    // Database
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+    implementation 'mysql:mysql-connector-java:8.0.33'
+
+    // Utilities
+    implementation 'org.jetbrains:annotations:24.1.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testImplementation 'org.mockito:mockito-core:5.8.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+shadowJar {
+    archiveBaseName.set(project.name)
+    archiveClassifier.set('')
+    archiveVersion.set(project.version.toString())
+
+    dependencies {
+        include(dependency('org.springframework.boot:.*'))
+        include(dependency('org.springframework:.*'))
+        include(dependency('com.zaxxer:HikariCP'))
+        include(dependency('mysql:mysql-connector-java'))
+        include(dependency('com.google.code.gson:gson'))
+    }
+
+    relocate 'org.springframework', 'com.teddy.econplugin.libs.spring'
+    relocate 'com.zaxxer.hikari', 'com.teddy.econplugin.libs.hikari'
+    relocate 'com.mysql', 'com.teddy.econplugin.libs.mysql'
+    relocate 'com.google.gson', 'com.teddy.econplugin.libs.gson'
+}
+
+build.dependsOn shadowJar
